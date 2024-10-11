@@ -24,12 +24,14 @@ public class MyImage extends JComponent {
         int x = 1;
         int y = 1;
         for(String color: content) {
-            if(color.contains("\n")){
-                y++;
-            }
+
             g.setColor(getColorFromString(color));
-            g.fillRect(x,y,100,100);
-            x += 100;
+            g.fillRect(x,y,25,25);
+            x += 25;
+            if(color.contains("\n")){
+                y+=25;
+                x = 1;
+            }
         }
     }
 
@@ -39,9 +41,11 @@ public class MyImage extends JComponent {
         System.out.println(color.split(" ")[0]);
         System.out.println(color.split(" ")[1]);
         System.out.println(color.split(" ")[2]);
+        color = color.replace("\n","");
         r = Integer.parseInt(color.split(" ")[0]);
         g = Integer.parseInt(color.split(" ")[1]);
         b = Integer.parseInt(color.split(" ")[2]);
+
         return new Color(r,g,b);
     }
 

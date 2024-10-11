@@ -14,8 +14,8 @@ public class MyPanel extends JPanel {
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.setColor(Color.BLACK);
-        g.fillRect(0, 0, 600, 600);
+        //g.setColor(Color.BLACK);
+        //g.fillRect(0, 0, 600, 600);
         myImage.content = (ArrayList<String>) PPM3Loader.testImagePPM3List;
         myImage.paint(g);
     }
