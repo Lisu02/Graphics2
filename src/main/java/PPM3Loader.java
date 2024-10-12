@@ -81,7 +81,7 @@ public class PPM3Loader {
             System.out.println("WRONG FILETYPE TO READ NOT A P3");
             throw new RuntimeException("WRONG FILETYPE TO READ NOT A P3");
         }
-
+        //Klasa image zawierajaca liste pixeli oraz informacji nagłówkoych MyImage | MyImageHeader oraz Pixel
         boolean isComment = false;
         boolean isNumber = false;
 
@@ -89,18 +89,18 @@ public class PPM3Loader {
         boolean isYSize = false;
         boolean isMaxValue = false;
 
-        int xSize,ySize,maxValue;
+        int xSize,ySize,maxValue; //Wyciągniecie informacji z początku pliku 3 2 enter 255
         ArrayList<Integer> number = new ArrayList<Integer>();
         int x = 0,y = 0;
         int r = -2,g = -2,b = -2;
 
         ArrayList<Pixel> pixelArrayList = new ArrayList<>();
         for(int i = 0; i < content.length; i++){
-            if(content[i] == '#'){isComment = true;continue;}
-            if(content[i] == '\n'){isComment = false;continue;}
+            if(content[i] == '#'){isComment = true;continue;} //Komentarz
+            if(content[i] == '\n' && isComment){isComment = false;continue;} //Koniec linii dla komentarza
             //if(content[i] == ' '){continue;}
             //if(content[i] == '\t'){continue;}
-            if(!isComment){
+            if(!isComment){ //Kiedy nie ma komentarza
 
 
 
