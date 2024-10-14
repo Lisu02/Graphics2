@@ -8,7 +8,7 @@ public class Main {
         frame.setName("Graphics 2");
 
         panel.setBackground(Color.BLACK);
-        frame.setSize(900,700);
+        frame.setSize(1920,1080);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.add(panel);
         frame.setVisible(true);

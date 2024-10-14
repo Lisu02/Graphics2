@@ -1,6 +1,9 @@
 import lombok.SneakyThrows;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
+import java.awt.image.RasterFormatException;
 import java.io.*;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
@@ -57,7 +60,7 @@ public class PPM3Loader {
         }
     }
 
-    public PixelImage blockReading(String filename) {
+    public BufferedImage blockReading(String filename) {
         FileReader fileReader = null;
         File myFile = new File(filename);
         try{
@@ -72,7 +75,7 @@ public class PPM3Loader {
         BufferedReader myReader = new BufferedReader(fileReader);
         try{
             int amountOfCharacters = myReader.read(charbuffer);
-            PixelImage pixelImage = new PixelImage(convertReadToObjects(buffer));
+            BufferedImage pixelImage = (convertReadToObjects(buffer));
             return pixelImage;
 
         } catch (IOException e) {
@@ -83,7 +86,8 @@ public class PPM3Loader {
         }
     }
 
-    private ArrayList<Pixel> convertReadToObjects(char[] content) {
+    private BufferedImage convertReadToObjects(char[] content) {
+
         ArrayList<String> colorNumber = new ArrayList<String>();
         ArrayList<String> numberList = new ArrayList<String>();
         ArrayList<Pixel> pixelList = new ArrayList<>();
@@ -93,6 +97,7 @@ public class PPM3Loader {
         int maxValue = 0;
         int r = -2,g = -2,b = -2;
         int x = 0,y = 0;
+        BufferedImage image = new BufferedImage(6000,1918,BufferedImage.TYPE_INT_RGB);
         for(int i = 2; i < content.length - 250; i++){
             if(content[i] == '#'){isComment = true;continue;}
             if(content[i] == '\n' && isComment  ){isComment = false;continue;}
@@ -142,9 +147,11 @@ public class PPM3Loader {
                         isNumber = false;
                     } else if (g == -2) {g = convertNumberListToSingleInt(colorNumber); colorNumber.clear(); isNumber = false;
                     } else if (b == -2) {b = convertNumberListToSingleInt(colorNumber);
-                        Pixel pixel = new Pixel(x,y,new Color(r,g,b));
+                        //Pixel pixel = new Pixel(x,y,new Color(r,g,b));
                         //System.out.println("Pixel: " + pixel.getX() + "," + pixel.getY() + " color: " + pixel.getColor());
-                        pixelList.add(pixel);
+                        int color = new Color(r,g,b).getRGB();
+                        image.setRGB(x,y,color);
+                        //pixelList.add(pixel);
 
                         x++;
                         if(x >= width){x = 0; y++;}
@@ -157,7 +164,7 @@ public class PPM3Loader {
             }
         }
         System.out.println("Width-> " + width + " Height-> " + height);
-        return pixelList;
+        return image;
     }
 
     private int convertNumberListToSingleInt(ArrayList<String> arrayList){
