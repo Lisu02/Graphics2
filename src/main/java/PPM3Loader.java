@@ -1,3 +1,5 @@
+import lombok.SneakyThrows;
+
 import java.awt.*;
 import java.io.*;
 import java.nio.CharBuffer;
@@ -55,81 +57,119 @@ public class PPM3Loader {
         }
     }
 
-    public void blockReading(String filename) {
+    public PixelImage blockReading(String filename) {
         FileReader fileReader = null;
+        File myFile = new File(filename);
         try{
-            fileReader = new FileReader(filename);
+            fileReader = new FileReader(myFile);
         }catch (FileNotFoundException e) {
+            System.out.println("NIE ZNALEZIONO PLIKU!!!!!");
             e.printStackTrace();
-            throw new RuntimeException(e);
         }
 
-        char[] buffer = new char[1024];
+        char[] buffer = new char[297483645];
         CharBuffer charbuffer = CharBuffer.wrap(buffer);
         BufferedReader myReader = new BufferedReader(fileReader);
         try{
             int amountOfCharacters = myReader.read(charbuffer);
+            PixelImage pixelImage = new PixelImage(convertReadToObjects(buffer));
+            return pixelImage;
 
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }finally {
+            charbuffer.clear();
+            buffer = null;
         }
     }
 
-    private void convertCharArrayToDrawable(char[] content) {
-        ArrayList<String> drawing = new ArrayList<String>();
-        if(!String.valueOf(content[0] + content[1]).equals("P3")){
-            System.out.println("WRONG FILETYPE TO READ NOT A P3");
-            throw new RuntimeException("WRONG FILETYPE TO READ NOT A P3");
-        }
-        //Klasa image zawierajaca liste pixeli oraz informacji nagłówkoych MyImage | MyImageHeader oraz Pixel
-        boolean isComment = false;
-        boolean isNumber = false;
-
-        boolean isXSize = false;
-        boolean isYSize = false;
-        boolean isMaxValue = false;
-
-        int xSize,ySize,maxValue; //Wyciągniecie informacji z początku pliku 3 2 enter 255
-        ArrayList<Integer> number = new ArrayList<Integer>();
-        int x = 0,y = 0;
+    private ArrayList<Pixel> convertReadToObjects(char[] content) {
+        ArrayList<String> colorNumber = new ArrayList<String>();
+        ArrayList<String> numberList = new ArrayList<String>();
+        ArrayList<Pixel> pixelList = new ArrayList<>();
+        Boolean isComment = false;
+        Boolean isNumber = false;
+        int width = 0,height = 0;
+        int maxValue = 0;
         int r = -2,g = -2,b = -2;
-
-        ArrayList<Pixel> pixelArrayList = new ArrayList<>();
-        for(int i = 0; i < content.length; i++){
-            if(content[i] == '#'){isComment = true;continue;} //Komentarz
-            if(content[i] == '\n' && isComment){isComment = false;continue;} //Koniec linii dla komentarza
-            //if(content[i] == ' '){continue;}
-            //if(content[i] == '\t'){continue;}
-            if(!isComment){ //Kiedy nie ma komentarza
-
-
-
-
-                if((content[i] == ' ' || content[i] == '\n') && isNumber){
-                    pixelArrayList.add(new Pixel(x,y,new Color(r,g,b)));
-                    r=-2;g=-2;b=-2;
-                    isNumber = false;
+        int x = 0,y = 0;
+        for(int i = 2; i < content.length - 250; i++){
+            if(content[i] == '#'){isComment = true;continue;}
+            if(content[i] == '\n' && isComment  ){isComment = false;continue;}
+            //No comment
+            if(!isComment){
+                //Check on width
+                if(content[i] >= 48 && content[i] <= 57 && width == 0){
+                    numberList.add(String.valueOf(content[i]));
+                    if(content[i+1] == ' ' || content[i+1] == '\n'){
+                        width = convertNumberListToSingleInt(numberList);
+                        numberList.clear();
+                        continue;
+                    }
                     continue;
                 }
-                if(content[i] >= 48 && content[i] <= 57){
-                    isNumber = true;
-                    if(isXSize == false){number.add((int) content[i]);}
-                    if(r == -2){r = content[i];continue;}
-                    if(g == -2){g = content[i];continue;}
-                    if(b == -2){b = content[i];continue;}
+                //Check on height
+                if(content[i] >= 48 && content[i] <= 57 && height == 0){
+                    numberList.add(String.valueOf(content[i]));
+                    if(content[i+1] == ' ' || content[i+1] == '\n'){
+                        height = convertNumberListToSingleInt(numberList);
+                        numberList.clear();
+                        continue;
+                    }
+                    continue;
+                }
+                //Check on maxValue
+                if(content[i] >= 48 && content[i] <= 57 && maxValue == 0){
+                    numberList.add(String.valueOf(content[i]));
+                    if(content[i+1] == ' ' || content[i+1] == '\n'){
+                        maxValue = convertNumberListToSingleInt(numberList);
+                        numberList.clear();
+                        continue;
+                    }
+                    continue;
                 }
 
+                //Standard number
+                if(content[i] >= 48 && content[i] <= 57){ //jezeli jest liczba
+                    isNumber = true;
+                    colorNumber.add(String.valueOf(content[i]));
+                }
+                //End of a standard number
+                if((content[i] == ' ' || content[i] == '\n') && isNumber){
+                    if(r == -2){
+                        r = convertNumberListToSingleInt(colorNumber);
+                        colorNumber.clear();
+                        isNumber = false;
+                    } else if (g == -2) {g = convertNumberListToSingleInt(colorNumber); colorNumber.clear(); isNumber = false;
+                    } else if (b == -2) {b = convertNumberListToSingleInt(colorNumber);
+                        Pixel pixel = new Pixel(x,y,new Color(r,g,b));
+                        //System.out.println("Pixel: " + pixel.getX() + "," + pixel.getY() + " color: " + pixel.getColor());
+                        pixelList.add(pixel);
+
+                        x++;
+                        if(x >= width){x = 0; y++;}
+                        if(y >= height){break;}
+                        r = -2;g = -2;b = -2;
+                        isNumber = false;
+                        colorNumber.clear();
+                    }
+                }
             }
         }
+        System.out.println("Width-> " + width + " Height-> " + height);
+        return pixelList;
     }
 
-    public ArrayList<String> convertStringImageToArrayList(String stringImage){
-        stringImage = stringImage.replaceAll("   ", " ");
-        stringImage = stringImage.replaceAll("  ", " ");
-
-
-        return null;
+    private int convertNumberListToSingleInt(ArrayList<String> arrayList){
+        int power = arrayList.size() - 1;
+        int result = 0;
+        for (String number: arrayList){
+            result += (int) (Integer.parseInt(number) *    Math.pow(10,power));
+            power --;
+        }
+        return result;
     }
+
 
 
 }

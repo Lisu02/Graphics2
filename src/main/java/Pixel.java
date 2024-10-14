@@ -1,6 +1,11 @@
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.swing.*;
 import java.awt.*;
 
+@Getter
+@Setter
 public class Pixel extends JComponent {
     private int x,y;
     private Color color;
