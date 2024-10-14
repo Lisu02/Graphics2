@@ -24,7 +24,12 @@
         public MyPanel() {
          PPM3Loader.loadPPM3TestImage();
          myImage = new MyImage();
-         bufferedImage = ppm3Loader.blockReading("ppm-test-07-p3-big.ppm"); //ppm-test-07-p3-big.ppm ppm-test-02-p3-comments.ppm
+         //bufferedImage = ppm3Loader.blockReading("ppm-test-07-p3-big.ppm"); //ppm-test-07-p3-big.ppm ppm-test-02-p3-comments.ppm
+           try{
+               bufferedImage = PPM6Loader.loadPPM6("ppm-test-03-p6.ppm");
+           }catch (Exception e){
+               e.printStackTrace();
+           }
             MouseComponent mouseComponent = new MouseComponent(this);
             addMouseListener(mouseComponent);
             addMouseMotionListener(this);
