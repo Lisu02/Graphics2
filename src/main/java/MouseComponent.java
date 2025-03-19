@@ -9,7 +9,7 @@ public class MouseComponent extends MouseMotionAdapter implements MouseListener,
 
     MyPanel myPanel;
     Component selectedComponent = null;
-
+    //testowy commit
     public MouseComponent(MyPanel panel) {
         myPanel = panel;
     }
